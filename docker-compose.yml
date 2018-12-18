@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+
+# cache server
+ redis:
+  container_name: redis
+  image: redis
+  restart: always
+  ports:
+  - 6379:6379
+
+# cdn server
+ rester-cdn:
+  container_name: rester-cdn
+  image: kevinpark/nginx-php-redis
+  restart: always
+  links:
+    - redis:cache.rester.kr
+  volumes:
+   - ./default.conf:/etc/nginx/sites-available/default.conf:ro
+   - ./nginx.conf:/etc/nginx/nginx.conf:ro
+   - ./src:/var/www/html
+   - ./cfg:/var/www/cfg:ro
+  ports:
+  - '80:80'
+  - '443:443'
