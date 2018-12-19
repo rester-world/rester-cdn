@@ -16,7 +16,7 @@ $no_image = 'no_image.gif';
 /**
  * Class rester
  */
-class rester
+class rester_cdn
 {
     /**
      * @var Redis

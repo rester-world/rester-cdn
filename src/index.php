@@ -4,20 +4,19 @@
 /// load classes
 //------------------------------------------------------------------------------
 require_once './rester/common.php';
-require_once './rester/rester.class.php';
+require_once './rester/rester_cdn.class.php';
 
 try
 {
     //------------------------------------------------------------------------------
     /// run images
     //------------------------------------------------------------------------------
-    $rester = new rester();
+    $rester = new rester_cdn();
     $rester->init();
     $rester->run();
 }
 catch (Exception $e)
 {
-    //echo $e->getMessage();
     //------------------------------------------------------------------------------
     /// print failed images
     //------------------------------------------------------------------------------
