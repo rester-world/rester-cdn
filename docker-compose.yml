@@ -19,7 +19,6 @@ services:
     - redis:cache.rester.kr
   volumes:
    - ./default.conf:/etc/nginx/sites-available/default.conf:ro
-   - ./nginx.conf:/etc/nginx/nginx.conf:ro
    - ./src:/var/www/html
    - ./cfg:/var/www/cfg:ro
   ports:
