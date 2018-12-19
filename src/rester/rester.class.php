@@ -36,6 +36,12 @@ class rester
     protected $file_thumb_path = false;
 
     /**
+     * expires default 2days
+     * @var float|int expires
+     */
+    protected $expires = 60*60*24*2;
+
+    /**
      * rester constructor.
      */
     public function __construct()
@@ -77,6 +83,11 @@ class rester
             error_reporting(E_ALL ^ (E_NOTICE | E_STRICT | E_WARNING | E_DEPRECATED));
         else
             error_reporting(0);
+
+        //------------------------------------------------------------------------------
+        /// Set expires time
+        //------------------------------------------------------------------------------
+        if($cfg['default']['expires']) $this->expires = $cfg['default']['expires'];
 
         //------------------------------------------------------------------------------
         /// no_image
@@ -281,6 +292,7 @@ class rester
         /// print image
         ///=====================================================================
         header('Content-Type: '.$response_mime);
+        header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($this->expires)));
         echo $response_data;
         exit;
     }
