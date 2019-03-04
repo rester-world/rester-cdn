@@ -362,6 +362,7 @@ class rester_cdn
             }
             elseif($thumb_width)
             {
+                if($thumb_width>$ori_width) $thumb_width = $ori_width;
                 $ratio = $thumb_width/$width;
                 $height = $height*$ratio;
                 $width = $thumb_width;
@@ -369,6 +370,7 @@ class rester_cdn
             }
             elseif($thumb_height)
             {
+                if($thumb_height>$ori_height) $thumb_height = $ori_height;
                 $ratio = $thumb_height/$height;
                 $width = $width*$ratio;
                 $height = $thumb_height;
