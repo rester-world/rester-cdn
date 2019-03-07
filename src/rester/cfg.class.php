@@ -15,6 +15,10 @@ class cfg
     const common_extensions = 'extensions';
     const common_expires = 'expires';
     const common_debug_mode = 'debug_mode';
+    const common_upload_limit = 'upload_limit';
+    const common_upload_limit_width = 'width';
+    const common_upload_limit_height = 'height';
+    const common_upload_limit_filesize = 'filesize';
 
     const error_images = 'error_images';
     const error_images_noimage      = 'noimage';
@@ -43,6 +47,11 @@ class cfg
             self::common_extensions=>['jpg','png','jpeg','gif','svg'],
             self::common_expires=>172600,
             self::common_debug_mode=>false,
+            self::common_upload_limit=>[
+                self::common_upload_limit_width=>-1,
+                self::common_upload_limit_height=>-1,
+                self::common_upload_limit_filesize=>-1,
+            ]
         ],
         self::error_images=>[
             self::error_images_noimage      =>'no_image.gif',
@@ -87,6 +96,28 @@ class cfg
         if(in_array($ext,self::$data[self::common][self::common_extensions])) return true;
         return false;
     }
+
+    /**
+     * @param string $type
+     *
+     * @return int
+     */
+    public static function upload_limit($type) { return self::$data[self::common][self::common_upload_limit][$type]; }
+
+    /**
+     * @return int
+     */
+    public static function upload_limit_width() { return self::upload_limit(self::common_upload_limit_width); }
+
+    /**
+     * @return int
+     */
+    public static function upload_limit_height() { return self::upload_limit(self::common_upload_limit_height); }
+
+    /**
+     * @return int
+     */
+    public static function upload_limit_filesize() { return self::upload_limit(self::common_upload_limit_filesize); }
 
     /**
      * @return int
