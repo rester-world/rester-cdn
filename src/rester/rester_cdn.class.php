@@ -198,9 +198,9 @@ class rester_cdn
             }
         }
 
-        rester_response::mime($response_mime);
-        rester_response::expires(cfg::expires());
-        rester_response::data($response_data);
+        rester_response_image::mime($response_mime);
+        rester_response_image::expires(cfg::expires());
+        rester_response_image::data($response_data);
     }
 
     /**

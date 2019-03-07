@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class rester_response
+ * Class rester_response_image
  */
-class rester_response
+class rester_response_image
 {
     protected static $mime;
     protected static $expires = 60*60*24*30;

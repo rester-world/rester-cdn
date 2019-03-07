@@ -8,9 +8,9 @@ try
 }
 catch (Exception $e)
 {
-    rester_response::result_error_image($e->getMessage());
+    rester_response_image::result_error_image($e->getMessage());
 }
 
 // print image
-rester_response::run();
+rester_response_image::run();
 

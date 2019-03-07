@@ -9,6 +9,11 @@ define('__RESTER__', TRUE);
 require_once dirname(__FILE__).'/cfg.class.php';
 require_once dirname(__FILE__).'/rester_cdn.class.php';
 require_once dirname(__FILE__).'/rester_response.class.php';
+require_once dirname(__FILE__).'/rester_response_image.class.php';
+require_once dirname(__FILE__).'/rester_upload.class.php';
+
+// ini set
+ini_set('memory_limit','-1');
 
 try
 {
@@ -22,9 +27,18 @@ catch (Exception $e)
 // -----------------------------------------------------------------------------
 /// catch 되지 않은 예외에 대한 처리함수
 // -----------------------------------------------------------------------------
-set_exception_handler(function() {
-    rester_response::result_error_image(cfg::error_images_etc);
-    rester_response::run();
+set_exception_handler(function(Error $e) {
+    if($e->getFile()=='/var/www/html/index.php')
+    {
+        rester_response_image::result_error_image(cfg::error_images_etc);
+        rester_response_image::run();
+    }
+    else
+    {
+        rester_response::error($e->getMessage());
+        rester_response::error_trace(explode("\n",$e->getTraceAsString()));
+        rester_response::run();
+    }
 });
 
 // -----------------------------------------------------------------------------
