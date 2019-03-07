@@ -13,14 +13,15 @@ services:
 # cdn server
  rester-cdn:
   container_name: rester-cdn
-  image: kevinpark/nginx-php-redis
+  image: rester/rester-docker
   restart: always
   links:
-    - redis:cache.rester.kr
+    - redis:cache.rester.io
   volumes:
-   - ./default.conf:/etc/nginx/sites-available/default.conf:ro
-   - ./src:/var/www/html
-   - ./cfg:/var/www/cfg:ro
+   - //Github/RESTer/rester-cdn/default.conf:/etc/nginx/sites-available/default.conf:ro
+   - //Github/RESTer/rester-cdn/src:/var/www/html
+   - //Github/RESTer/rester-cdn/files:/var/www/files
+   - //Github/RESTer/rester-cdn/cfg:/var/www/cfg:ro
   ports:
   - '80:80'
   - '443:443'
