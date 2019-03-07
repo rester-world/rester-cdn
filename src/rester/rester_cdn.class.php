@@ -10,8 +10,6 @@ const QUERY_CACHE_TIMEOUT   = 'timeout';
 const QUERY_THUMB           = 'thumb';
 const QUERY_THUMB_WIDTH     = 'width';
 const QUERY_THUMB_HEIGHT    = 'height';
-const CONFIG_FILE_NAME      = 'rester.ini';
-$no_image = 'no_image.gif';
 
 /**
  * Class rester
@@ -36,125 +34,46 @@ class rester_cdn
     protected $file_thumb_path = false;
 
     /**
-     * expires default 2days
-     * @var float|int expires
-     */
-    protected $expires = 60*60*24*2;
-
-    /**
-     * rester constructor.
-     */
-    public function __construct()
-    {
-    }
-
-    /**
-     * rester destructor
-     */
-    public function __destruct()
-    {
-        if($this->redis) $this->redis->close();
-    }
-
-    /**
-     * initialize basic information
+     * rester_cdn constructor.
      *
      * @throws Exception
      */
-    public function init()
+    public function __construct()
     {
-        //----------------------------------------------
-        /// Load config
-        //----------------------------------------------
-        $path = dirname(__FILE__).'/../../cfg/'.CONFIG_FILE_NAME;
-        if(is_file($path))
+        if(!cfg::check_site())
         {
-            $cfg = parse_ini_file($path,true, INI_SCANNER_TYPED);
-        }
-        else
-        {
-            throw new Exception("There is no config file.(rester.ini)");
+            throw new Exception(cfg::error_images_site);
         }
 
-        //------------------------------------------------------------------------------
-        /// config error reporting
-        //------------------------------------------------------------------------------
-        if($cfg['default']['debug_mode'])
-            error_reporting(E_ALL ^ (E_NOTICE | E_STRICT | E_WARNING | E_DEPRECATED));
-        else
-            error_reporting(0);
-
-        //------------------------------------------------------------------------------
-        /// Set expires time
-        //------------------------------------------------------------------------------
-        if($cfg['default']['expires']) $this->expires = $cfg['default']['expires'];
-
-        //------------------------------------------------------------------------------
-        /// no_image
-        //------------------------------------------------------------------------------
-        global $no_image;
-        if($cfg['default']['noimage']) $no_image = $cfg['default']['noimage'];
-
-        //----------------------------------------------
-        /// Extract access control
-        /// default value : *
-        //----------------------------------------------
-        $allows_ip = '*';
-        if($acc = $cfg['default']['allows_origin'])
-        {
-            if($acc!='*')
-                $allows_ip = explode(',', $acc);
-            array_walk_recursive($allows_ip, function(&$v) { $v = trim($v); });
-        }
-
-        //----------------------------------------------
-        /// Check allows ip address
-        /// Check ip from share internet
-        //----------------------------------------------
-        if($allows_ip != '*')
-        {
-            if (!empty($_SERVER['HTTP_CLIENT_IP'])) { $access_ip=$_SERVER['HTTP_CLIENT_IP']; }
-            //to check ip is pass from proxy
-            else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $access_ip=$_SERVER['HTTP_X_FORWARDED_FOR']; }
-            else { $access_ip=$_SERVER['REMOTE_ADDR']; }
-
-            if(!in_array($access_ip,$allows_ip))
-            {
-                throw new Exception("Access denied.(Not allowed ip address:{$access_ip})");
-            }
-        }
-
-        //----------------------------------------------
-        /// extract and check extension
-        //----------------------------------------------
-        $allows_extensions = [ 'jpg','png','jpeg','gif','svg' ];
-        if($cfg['default']['extensions'])
-        {
-            $allows_extensions = array_walk(explode(',',$cfg['default']['extensions']),'trim()');
-        }
         $extension = substr($_GET[QUERY_FILE],strrpos($_GET[QUERY_FILE],'.')+1);
-        if(!in_array($extension,$allows_extensions))
-            throw new Exception("Access denied.(Not allowed extension:{$extension})");
+        if(!cfg::check_extension($extension))
+        {
+            throw new Exception(cfg::error_images_extension);
+        }
 
-        //----------------------------------------------
-        /// check request method
-        //----------------------------------------------
-        if($_SERVER['REQUEST_METHOD']!='GET')
-            throw new Exception("Invalid request METHOD.(Allowed GET)");
+        // check request method
+        if(cfg::method()!='GET')
+        {
+            throw new Exception(cfg::error_images_method);
+        }
 
-        //----------------------------------------------
         /// Extract file_path & check file
-        //----------------------------------------------
         // Check module name
         if(preg_match('/^[a-z0-9-_]*$/i',strtolower($_GET[QUERY_MODULE]),$matches))
+        {
             $module = $matches[0];
+        }
         else
-            throw new Exception("Invalid module name.");
+        {
+            throw new Exception(cfg::error_images_module_name);
+        }
 
         $file = base64_decode(urldecode(substr($_GET[QUERY_FILE],0,strrpos($_GET[QUERY_FILE],'.'))));
-        $file_path = './files/'.$module.'/'.$file.'.'.$extension;
+        $file_path = '../files/'.$module.'/'.$file.'.'.$extension;
         if(!is_file($file_path))
-            throw new Exception("Access denied.(No file:{$file_path})");
+        {
+            throw new Exception(cfg::error_images_noimage);
+        }
         $this->file_path = $file_path;
 
         //----------------------------------------------
@@ -165,7 +84,7 @@ class rester_cdn
         {
             $this->cache = true;
             if($_GET[QUERY_CACHE_TIMEOUT]) $this->cache_timeout = $_GET[QUERY_CACHE_TIMEOUT];
-            else if($cfg['cache']['timeout']) $this->cache_timeout = $cfg['cache']['timeout'];
+            else if(cfg::cache_timeout()) $this->cache_timeout = cfg::cache_timeout();
         }
         // Thumb
         if($_GET[QUERY_THUMB])
@@ -186,39 +105,30 @@ class rester_cdn
 
         //------------------------------------------------------------------------------
         /// redis host & port
-        /// default
-        ///     host = cache.rester.kr
-        ///     port = 6379
-        ///     auth = false
         //------------------------------------------------------------------------------
         if($this->cache)
         {
-            $cache_host = 'cache.rester.kr';
-            $cache_port = 6379;
-            $cache_auth = false;
-            if($cfg['cache'])
+            if(!(cfg::cache_host() && cfg::cache_port()))
             {
-                if($cfg['cache']['host']) $cache_host = $cfg['cache']['host'];
-                if($cfg['cache']['port']) $cache_port = $cfg['cache']['port'];
-                if($cfg['cache']['auth']) $cache_auth = $cfg['cache']['auth'];
+                throw new Exception(cfg::error_images_cache);
             }
-
-            if(!($cache_host && $cache_port))
-            {
-                throw new Exception("Require cache config to use cache.");
-            }
-
 
             $this->redis = new Redis();
-            $this->redis->connect($cache_host, $cache_port);
-            if($cache_auth) $this->redis->auth($cache_auth);
+            $this->redis->connect(cfg::cache_host(), cfg::cache_port());
+            if(cfg::cache_auth()) $this->redis->auth(cfg::cache_auth());
 
             $__path = urlencode($this->file_thumb_path?$this->file_thumb_path:$this->file_path);
             $this->cache_header_key = 'rester-cdn-header-'.$__path;
             $this->cache_key = 'rester-cdn-'.$__path;
         }
+    }
 
-        unset($_GET);
+    /**
+     * rester destructor
+     */
+    public function __destruct()
+    {
+        if($this->redis) $this->redis->close();
     }
 
     /**
@@ -288,13 +198,9 @@ class rester_cdn
             }
         }
 
-        ///=====================================================================
-        /// print image
-        ///=====================================================================
-        header('Content-Type: '.$response_mime);
-        header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($this->expires)));
-        echo $response_data;
-        exit;
+        rester_response::mime($response_mime);
+        rester_response::expires(cfg::expires());
+        rester_response::data($response_data);
     }
 
     /**
@@ -442,7 +348,7 @@ class rester_cdn
     /**
      * 이미지 형태의 파일을 읽어들인다.
      * 파일 형식에 맞게 이미지 리소스를 로드함
-     * 이미지 형식이 아닌 파일은 false를 반환하며 에러코드를 남긴다.
+     * 이미지 형식이 아닌 파일은 false 를 반환하며 에러코드를 남긴다.
      * $echo 변수에 따라 바로 출력하거나 리소스를 반환한다.
      *
      * @param string $path 이미지 경로

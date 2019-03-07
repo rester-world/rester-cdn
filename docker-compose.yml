@@ -16,7 +16,7 @@ services:
   image: rester/rester-docker
   restart: always
   links:
-    - redis:cache.rester.kr
+    - redis:cache.rester.io
   volumes:
    - //Github/RESTer/rester-cdn/default.conf:/etc/nginx/sites-available/default.conf:ro
    - //Github/RESTer/rester-cdn/src:/var/www/html

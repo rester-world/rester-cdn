@@ -1,4 +1,39 @@
-<?php define('__RESTER__', TRUE);
+<?php
+
+define('__RESTER__', TRUE);
+/**
+ *  @file common.php
+ *  @brief  가장 먼저 실행되는 파일이면서 각종 초기화를 수행함
+ */
+
+require_once dirname(__FILE__).'/cfg.class.php';
+require_once dirname(__FILE__).'/rester_cdn.class.php';
+require_once dirname(__FILE__).'/rester_response.class.php';
+
+try
+{
+    cfg::init();
+}
+catch (Exception $e)
+{
+    throw new $e;
+}
+
+// -----------------------------------------------------------------------------
+/// catch 되지 않은 예외에 대한 처리함수
+// -----------------------------------------------------------------------------
+set_exception_handler(function() {
+    rester_response::result_error_image(cfg::error_images_etc);
+    rester_response::run();
+});
+
+// -----------------------------------------------------------------------------
+/// 오류출력설정
+// -----------------------------------------------------------------------------
+if (cfg::debug_mode())
+    error_reporting(E_ALL ^ (E_NOTICE | E_STRICT | E_WARNING | E_DEPRECATED));
+else
+    error_reporting(0);
 
 ///=============================================================================
 /// Set the global variables [_POST / _GET / _COOKIE]
