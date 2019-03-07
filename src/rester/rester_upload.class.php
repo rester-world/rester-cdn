@@ -71,7 +71,7 @@ class rester_upload
     {
         $ext = substr($file_name,strrpos($file_name,'.')+1);
         $filename = substr($file_name,0,strrpos($file_name,'.'));
-        return '/rester-cdn/'.$this->module_name.'/'.urlencode(base64_encode($this->upload_date.'/'.$filename)).'.'.$ext;
+        return $this->module_name.'/'.urlencode(base64_encode($this->upload_date.'/'.$filename)).'.'.$ext;
     }
 
     /**
