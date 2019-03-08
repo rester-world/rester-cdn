@@ -1,0 +1,263 @@
+{
+	"info": {
+		"_postman_id": "9180dfae-4729-4e15-8f36-e9c72d030dde",
+		"name": "RESTer-cdn",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "File Upload",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fdc29fc3-ac00-4a6f-8864-6711f3823d85",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3b9436ce-172f-4f85-a3be-fe8d27396c22",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "rester-cdn[]",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "rester-cdn[]",
+							"type": "file",
+							"src": "",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{host}}/rester-cdn/upload/hellorester_cdn",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"rester-cdn",
+						"upload",
+						"hellorester_cdn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "File delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fdc29fc3-ac00-4a6f-8864-6711f3823d85",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3b9436ce-172f-4f85-a3be-fe8d27396c22",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://{{host}}/rester-cdn/delete/hellorester_cdn/MjAxOS0wMy8wNy9jZDg1OTRmZGRiMzU3NzQ4OWE3OV8lRUIlQUYlQjglRUMlODQlQjglRUIlQTglQkMlRUMlQTclODA%3D.png",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"rester-cdn",
+						"delete",
+						"hellorester_cdn",
+						"MjAxOS0wMy8wNy9jZDg1OTRmZGRiMzU3NzQ4OWE3OV8lRUIlQUYlQjglRUMlODQlQjglRUIlQTglQkMlRUMlQTclODA%3D.png"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "File image/thumb",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fdc29fc3-ac00-4a6f-8864-6711f3823d85",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3b9436ce-172f-4f85-a3be-fe8d27396c22",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Referer",
+						"value": "https://rester.io",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{host}}/rester-cdn/image/hellorester_cdn/MjAxOS0wMy8wNy9jZDg1OTRmZGRiMzU3NzQ4OWE3OV8lRUIlQUYlQjglRUMlODQlQjglRUIlQTglQkMlRUMlQTclODA%3D.png?thumb=true&width=50",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"rester-cdn",
+						"image",
+						"hellorester_cdn",
+						"MjAxOS0wMy8wNy9jZDg1OTRmZGRiMzU3NzQ4OWE3OV8lRUIlQUYlQjglRUMlODQlQjglRUIlQTglQkMlRUMlQTclODA%3D.png"
+					],
+					"query": [
+						{
+							"key": "thumb",
+							"value": "true"
+						},
+						{
+							"key": "width",
+							"value": "50"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "File download",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fdc29fc3-ac00-4a6f-8864-6711f3823d85",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3b9436ce-172f-4f85-a3be-fe8d27396c22",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{host}}/rester-cdn/download/hellorester_cdn/MjAxOS0wMy8wNy9lNGRlYTY0ZTQ3NDUyZDRlZTdkYl8lRUIlQUYlQjglRUMlODQlQjglRUIlQTglQkMlRUMlQTclODA%3D.png",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"rester-cdn",
+						"download",
+						"hellorester_cdn",
+						"MjAxOS0wMy8wNy9lNGRlYTY0ZTQ3NDUyZDRlZTdkYl8lRUIlQUYlQjglRUMlODQlQjglRUIlQTglQkMlRUMlQTclODA%3D.png"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "00acf4c0-52a1-4974-b494-18b270615e0c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "baad57f4-7934-4bb7-8909-d80791ce9f26",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "15257710-b60c-4a91-aff2-abca0365e148",
+			"key": "host",
+			"value": "192.168.99.100",
+			"type": "string"
+		}
+	]
+}
