@@ -34,18 +34,12 @@ try
         header($v);
     }
     echo file_get_contents($file_path);
-    exit;
 }
 catch (Exception $e)
 {
     rester_response::error($e->getMessage());
     rester_response::error_trace(explode("\n",$e->getTraceAsString()));
+    rester_response::run();
 }
 
-rester_response::run();
-
-
-$filename = $this->data['file_name'];
-$filesize = $this->data['file_size'];
-//$filepath = $this->get_uploaded_path();
 
