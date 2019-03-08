@@ -25,7 +25,7 @@ try
         "Pragma: public",
         "Expires: 0",
         "Content-Type: application/octet-stream",
-        "Content-Disposition: attachment; filename='$file_name'",
+        "Content-Disposition: attachment; filename=$file_name",
         "Content-Transfer-Encoding: binary",
         "Content-Length: $file_size"
     ];
