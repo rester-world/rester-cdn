@@ -6,7 +6,6 @@
 class rester_upload
 {
     const QUERY_MODULE  = 'm';
-    const FORM_NAME     = 'rester-cdn';
     protected $module_name; // 호출 모듈명
     protected $upload_date; // 파일업로드 경로(date)
     protected $upload_path; // 파일업로드 경로(all)
@@ -82,59 +81,60 @@ class rester_upload
     {
         // 업로드된 파일
         $uploaded_files = array();
-        // 폼이름
-        $name = self::FORM_NAME;
 
-        // 단일파일 => 파일 배열
-        if(!is_array($_FILES[$name]['name']) && $_FILES[$name]['name'])
+        foreach ($_FILES as $name=>$FILE)
         {
-            $files['name'][0] = $_FILES[$name]['name'];
-            $files['type'][0] = $_FILES[$name]['type'];
-            $files['tmp_name'][0] = $_FILES[$name]['tmp_name'];
-            $files['size'][0] = $_FILES[$name]['size'];
-            $_FILES[$name] = $files;
-        }
-
-        // 파일개수만큼 돌기
-        foreach($_FILES[$name]['name'] as $k=>$v)
-        {
-            $file_name = $_FILES[$name]['name'][$k];
-            $file_ext = array_pop(explode('.',$file_name));
-            $tmp_name = $_FILES[$name]['tmp_name'][$k];
-
-            $filesize_limit = cfg::upload_limit_filesize();
-            $filesize = $_FILES[$name]['size'][$k];
-            if($filesize_limit>0 && $filesize_limit<$filesize)
-                throw new Exception("파일 업로드 용량 초과. ({$filesize}/$filesize_limit)");
-
-            // 확장자 체크
-            if(!cfg::check_extension($file_ext))
-                throw new Exception("Not allowed file extension. ({$file_ext})");
-
-            // 이미지 크기 체크
-            $mime = $_FILES[$name]['type'][$k];
-            if(strpos($mime,'image')===0)
+            // 단일파일 => 파일 배열
+            if(!is_array($FILE['name']) && $FILE['name'])
             {
-                $limit_width = cfg::upload_limit_width();
-                $limit_height = cfg::upload_limit_height();
-                $image_size = getimagesize($tmp_name);
-                if($limit_width>0 && $limit_width<$image_size[0])
-                    throw new Exception("이미지(width) 크기 초과 ({$image_size[0]}/{$limit_width})");
-                if($limit_height>0 && $limit_height<$image_size[1])
-                    throw new Exception("이미지(height) 크기 초과 ({$image_size[1]}/{$limit_height})");
+                $files['name'][0] = $FILE['name'];
+                $files['type'][0] = $FILE['type'];
+                $files['tmp_name'][0] = $FILE['tmp_name'];
+                $files['size'][0] = $FILE['size'];
+                $FILE = $files;
             }
 
-            // 파일 업로드
-            if(is_uploaded_file($tmp_name))
+            // 파일개수만큼 돌기
+            foreach($FILE['name'] as $k=>$v)
             {
-                $real_file_name = $this->gen_filename($file_name);
-                $dest_file = $this->upload_path.$real_file_name;
+                $file_name = $FILE['name'][$k];
+                $file_ext = array_pop(explode('.',$file_name));
+                $tmp_name = $FILE['tmp_name'][$k];
 
-                if(move_uploaded_file($tmp_name, $dest_file))
+                $filesize_limit = cfg::upload_limit_filesize();
+                $filesize = $FILE['size'][$k];
+                if($filesize_limit>0 && $filesize_limit<$filesize)
+                    throw new Exception("파일 업로드 용량 초과. ({$filesize}/$filesize_limit)");
+
+                // 확장자 체크
+                if(!cfg::check_extension($file_ext))
+                    throw new Exception("Not allowed file extension. ({$file_ext})");
+
+                // 이미지 크기 체크
+                $mime = $FILE['type'][$k];
+                if(strpos($mime,'image')===0)
                 {
-                    umask(0);
-                    chmod($dest_file, 0664);
-                    $uploaded_files[] = $this->get_cdn_path($real_file_name);
+                    $limit_width = cfg::upload_limit_width();
+                    $limit_height = cfg::upload_limit_height();
+                    $image_size = getimagesize($tmp_name);
+                    if($limit_width>0 && $limit_width<$image_size[0])
+                        throw new Exception("이미지(width) 크기 초과 ({$image_size[0]}/{$limit_width})");
+                    if($limit_height>0 && $limit_height<$image_size[1])
+                        throw new Exception("이미지(height) 크기 초과 ({$image_size[1]}/{$limit_height})");
+                }
+
+                // 파일 업로드
+                if(is_uploaded_file($tmp_name))
+                {
+                    $real_file_name = $this->gen_filename($file_name);
+                    $dest_file = $this->upload_path.$real_file_name;
+
+                    if(move_uploaded_file($tmp_name, $dest_file))
+                    {
+                        umask(0);
+                        chmod($dest_file, 0664);
+                        $uploaded_files[] = $this->get_cdn_path($real_file_name);
+                    }
                 }
             }
         }
