@@ -19,7 +19,7 @@ try
     {
         throw new Exception("파일이 없습니다.");
     }
-    $file_name = urldecode(explode('_',$file)[1]).$extension;
+    $file_name = urldecode(explode('_',$file)[1]).'.'.$extension;
     $file_size = filesize($file_path);
     $headers = [
         "Pragma: public",
