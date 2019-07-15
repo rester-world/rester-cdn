@@ -192,7 +192,6 @@ class cfg
      */
     public static function check_upload()
     {
-        return true;
         $allows = self::allows_upload();
         if($allows=='*') return true;
         if(in_array(self::access_ip(),$allows)) return true;
