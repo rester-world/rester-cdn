@@ -18,10 +18,10 @@ services:
   links:
     - redis:cache.rester.io
   volumes:
-   - ./nginx-conf:/etc/nginx/sites-available:ro
-   - ./src:/var/www/html
-   - ./files:/var/www/files
-   - ./cfg:/var/www/cfg:ro
+   - \\project/rester/rester-cdn/nginx-conf:/etc/nginx/sites-available:ro
+   - \\project/rester/rester-cdn/src:/var/www/html
+   - \\project/rester/rester-cdn/files:/var/www/files
+   - \\project/rester/rester-cdn/cfg:/var/www/cfg:ro
   ports:
   - '80:80'
   - '443:443'
