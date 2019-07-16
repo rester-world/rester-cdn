@@ -12,6 +12,7 @@ class cfg
     const method = 'method';
 
     const common = 'common';
+    const common_timezone = 'timezone';
     const common_extensions = 'extensions';
     const common_expires = 'expires';
     const common_debug_mode = 'debug_mode';
@@ -192,6 +193,7 @@ class cfg
      */
     public static function check_upload()
     {
+        return true;
         $allows = self::allows_upload();
         if($allows=='*') return true;
         if(in_array(self::access_ip(),$allows)) return true;
@@ -215,6 +217,9 @@ class cfg
         }
 
         $cfg = parse_ini_file($path,true, INI_SCANNER_TYPED);
+
+        // set timezone
+        date_default_timezone_set($cfg[self::common][self::common_timezone]);
 
         // common extensions
         $extensions = $cfg[self::common][self::common_extensions];
@@ -267,7 +272,7 @@ class cfg
     /**
      * @return string
      */
-    protected static function access_ip()
+    public static function access_ip()
     {
         // Check allows ip address
         // Check ip from share internet

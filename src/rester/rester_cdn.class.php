@@ -22,9 +22,13 @@ class rester_cdn
     protected $redis = null;
 
     protected $cache = false;
+    protected $cache_connected = false;
     protected $cache_timeout = 600;
     protected $cache_key = null;
+    protected $cache_size_key = null;
     protected $cache_header_key = null;
+
+    protected $cache_traffic_key = null;
 
     protected $thumb = false;
     protected $thumb_width = 0;
@@ -106,12 +110,9 @@ class rester_cdn
         //------------------------------------------------------------------------------
         /// redis host & port
         //------------------------------------------------------------------------------
-        if($this->cache)
+        if((cfg::cache_host() && cfg::cache_port()))
         {
-            if(!(cfg::cache_host() && cfg::cache_port()))
-            {
-                throw new Exception(cfg::error_images_cache);
-            }
+            $this->cache_connected = true;
 
             $this->redis = new Redis();
             $this->redis->connect(cfg::cache_host(), cfg::cache_port());
@@ -119,7 +120,11 @@ class rester_cdn
 
             $__path = urlencode($this->file_thumb_path?$this->file_thumb_path:$this->file_path);
             $this->cache_header_key = 'rester-cdn-header-'.$__path;
+            $this->cache_size_key = 'rester-cdn-size-'.$__path;
             $this->cache_key = 'rester-cdn-'.$__path;
+
+            $this->cache_traffic_key = 'rester-cdn-traffic-'.$this->gen_key();
+            $this->cache_allows_key = 'rester-allows';
         }
     }
 
@@ -129,6 +134,16 @@ class rester_cdn
     public function __destruct()
     {
         if($this->redis) $this->redis->close();
+    }
+
+    public static function gen_key($length=40)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.!@#$%^&()-_*=+';
+        $token = '';
+        for ($i = 0; $i < $length; $i++) {
+            $token .= $characters[rand(0, strlen($characters))];
+        }
+        return $token;
     }
 
     /**
@@ -147,6 +162,27 @@ class rester_cdn
         return $this->redis->get($this->cache_key);
     }
 
+    protected function get_cache_size()
+    {
+        return $this->redis->get($this->cache_size_key);
+    }
+
+    /**
+     * @return bool|string
+     */
+    protected function get_cache_allows()
+    {
+        return $this->redis->get($this->cache_allows_key);
+    }
+
+    /**
+     * @param array $v
+     */
+    protected function set_cache_traffic($v)
+    {
+        $this->redis->set($this->cache_traffic_key, json_encode($v), 60*60);
+    }
+
     /**
      * @param string $v
      */
@@ -154,6 +190,15 @@ class rester_cdn
     {
         $this->redis->set($this->cache_header_key,$v,$this->cache_timeout);
     }
+
+    /**
+     * @param string|object $v
+     */
+    protected function set_cache_size($v)
+    {
+        $this->redis->set($this->cache_key,$v,$this->cache_timeout);
+    }
+
 
     /**
      * @param string|object $v
@@ -172,6 +217,9 @@ class rester_cdn
     {
         $response_mime = null;
         $response_data = null;
+        $response_size = null;
+
+        $__path = $this->file_thumb_path?$this->file_thumb_path:$this->file_path;
 
         //--------------------------------------------------------------------------------
         /// Get cached data
@@ -180,22 +228,35 @@ class rester_cdn
         {
             $response_data = $this->get_cache();
             $response_mime = $this->get_cache_header();
+            $response_size = $this->get_cache_size();
         }
+
 
         //--------------------------------------------------------------------------------
         /// include file
         //--------------------------------------------------------------------------------
-        if(!$response_mime || !$response_data)
+        if(!$response_mime || !$response_data || !$response_size)
         {
-            $__path = $this->file_thumb_path?$this->file_thumb_path:$this->file_path;
             $response_mime = mime_content_type($__path);
             $response_data = file_get_contents($__path);
+            $response_size = filesize($__path);
 
             if($this->cache)
             {
                 $this->set_cache_header($response_mime);
+                $this->set_cache_size($response_size);
                 $this->set_cache($response_data);
             }
+        }
+
+        if ($this->cache_connected)
+        {
+            $this->set_cache_traffic([
+                'ip' => cfg::access_ip(),
+                'referer' => $_SERVER['HTTP_REFERER'],
+                'datetime' => date("Y-m-d H:i:s"),
+                'path' => $__path,
+                'size' => $response_size]);
         }
 
         rester_response_image::mime($response_mime);
