@@ -125,6 +125,16 @@ class rester_cdn
         }
     }
 
+    public static function gen_key($length=40)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.!@#$%^&()-_*=+';
+        $token = '';
+        for ($i = 0; $i < $length; $i++) {
+            $token .= $characters[rand(0, strlen($characters))];
+        }
+        return $token;
+    }
+
     /**
      * rester destructor
      */
