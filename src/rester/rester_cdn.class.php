@@ -120,6 +120,8 @@ class rester_cdn
             $this->cache_header_key = 'rester-cdn-header-'.$__path;
             $this->cache_size_key = 'rester-cdn-size-'.$__path;
             $this->cache_key = 'rester-cdn-'.$__path;
+            $this->cache_traffic_key = 'rester-cdn-traffic-'.$this->gen_key();
+            $this->cache_allows_key = 'rester-allows';
         }
     }
 
@@ -149,6 +151,14 @@ class rester_cdn
 
     /**
      * @return bool|string
+     */
+    protected function get_cache_allows()
+    {
+        return $this->redis->get($this->cache_allows_key);
+    }
+
+    /**
+     * @param array $v
      */
     protected function get_cache_size()
     {

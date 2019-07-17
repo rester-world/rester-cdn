@@ -12,6 +12,7 @@ class cfg
     const method = 'method';
 
     const common = 'common';
+    const common_timezone = 'timezone';
     const common_extensions = 'extensions';
     const common_expires = 'expires';
     const common_debug_mode = 'debug_mode';
@@ -215,6 +216,9 @@ class cfg
         }
 
         $cfg = parse_ini_file($path,true, INI_SCANNER_TYPED);
+
+        // set timezone
+        date_default_timezone_set($cfg[self::common][self::common_timezone]);
 
         // common extensions
         $extensions = $cfg[self::common][self::common_extensions];
