@@ -11,6 +11,7 @@ require_once dirname(__FILE__).'/rester_cdn.class.php';
 require_once dirname(__FILE__).'/rester_response.class.php';
 require_once dirname(__FILE__).'/rester_response_image.class.php';
 require_once dirname(__FILE__).'/rester_upload.class.php';
+require_once dirname(__FILE__).'/rester_traffic.class.php';
 require_once dirname(__FILE__).'/rester_allows.class.php';
 
 // ini set

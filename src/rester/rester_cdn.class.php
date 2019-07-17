@@ -28,8 +28,6 @@ class rester_cdn
     protected $cache_size_key = null;
     protected $cache_header_key = null;
 
-    protected $cache_traffic_key = null;
-
     protected $thumb = false;
     protected $thumb_width = 0;
     protected $thumb_height = 0;
@@ -122,7 +120,6 @@ class rester_cdn
             $this->cache_header_key = 'rester-cdn-header-'.$__path;
             $this->cache_size_key = 'rester-cdn-size-'.$__path;
             $this->cache_key = 'rester-cdn-'.$__path;
-
             $this->cache_traffic_key = 'rester-cdn-traffic-'.$this->gen_key();
             $this->cache_allows_key = 'rester-allows';
         }
@@ -134,16 +131,6 @@ class rester_cdn
     public function __destruct()
     {
         if($this->redis) $this->redis->close();
-    }
-
-    public static function gen_key($length=40)
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.!@#$%^&()-_*=+';
-        $token = '';
-        for ($i = 0; $i < $length; $i++) {
-            $token .= $characters[rand(0, strlen($characters))];
-        }
-        return $token;
     }
 
     /**
@@ -162,11 +149,6 @@ class rester_cdn
         return $this->redis->get($this->cache_key);
     }
 
-    protected function get_cache_size()
-    {
-        return $this->redis->get($this->cache_size_key);
-    }
-
     /**
      * @return bool|string
      */
@@ -178,9 +160,9 @@ class rester_cdn
     /**
      * @param array $v
      */
-    protected function set_cache_traffic($v)
+    protected function get_cache_size()
     {
-        $this->redis->set($this->cache_traffic_key, json_encode($v), 60*60);
+        return $this->redis->get($this->cache_size_key);
     }
 
     /**
@@ -198,7 +180,6 @@ class rester_cdn
     {
         $this->redis->set($this->cache_key,$v,$this->cache_timeout);
     }
-
 
     /**
      * @param string|object $v
@@ -251,7 +232,8 @@ class rester_cdn
 
         if ($this->cache_connected)
         {
-            $this->set_cache_traffic([
+            rester_traffic::set_cache($this->redis);
+            rester_traffic::set_cache_traffic([
                 'ip' => cfg::access_ip(),
                 'referer' => $_SERVER['HTTP_REFERER'],
                 'datetime' => date("Y-m-d H:i:s"),
