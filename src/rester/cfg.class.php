@@ -219,7 +219,7 @@ class cfg
         $cfg = parse_ini_file($path,true, INI_SCANNER_TYPED);
 
         // set timezone
-        date_default_timezone_set($cfg[self::common][self::common_timezone]);
+        date_default_timezone_set('Asia/Seoul');
 
         // common extensions
         $extensions = $cfg[self::common][self::common_extensions];
