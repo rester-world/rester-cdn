@@ -19,7 +19,7 @@ class rester_cdn
     /**
      * @var Redis
      */
-    protected $redis = null;
+//    protected $redis = null;
 
     protected $cache = false;
     protected $cache_connected = false;
@@ -108,47 +108,48 @@ class rester_cdn
         //------------------------------------------------------------------------------
         /// redis host & port
         //------------------------------------------------------------------------------
-        if((cfg::cache_host() && cfg::cache_port()))
-        {
-            $this->cache_connected = true;
-
-            $this->redis = new Redis();
-            $this->redis->connect(cfg::cache_host(), cfg::cache_port());
-            if(cfg::cache_auth()) $this->redis->auth(cfg::cache_auth());
-
+//        if((cfg::cache_host() && cfg::cache_port()))
+//        {
+//            $this->cache_connected = true;
+//
+//            $this->redis = new Redis();
+//
+//            $this->redis->connect(cfg::cache_host(), cfg::cache_port());
+//
+//            if(cfg::cache_auth()) $this->redis->auth(cfg::cache_auth());
+//
             $__path = urlencode($this->file_thumb_path?$this->file_thumb_path:$this->file_path);
             $this->cache_header_key = 'rester-cdn-header-'.$__path;
             $this->cache_size_key = 'rester-cdn-size-'.$__path;
             $this->cache_key = 'rester-cdn-'.$__path;
-            $this->cache_traffic_key = 'rester-cdn-traffic-'.$this->gen_key();
-            $this->cache_allows_key = 'rester-allows';
-        }
+//            $this->cache_traffic_key = 'rester-cdn-traffic-'.$this->gen_key();
+//        }
     }
 
-    public static function gen_key($length=40)
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.!@#$%^&()-_*=+';
-        $token = '';
-        for ($i = 0; $i < $length; $i++) {
-            $token .= $characters[rand(0, strlen($characters))];
-        }
-        return $token;
-    }
+//    public static function gen_key($length=40)
+//    {
+//        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.!@#$%^&()-_*=+';
+//        $token = '';
+//        for ($i = 0; $i < $length; $i++) {
+//            $token .= $characters[rand(0, strlen($characters))];
+//        }
+//        return $token;
+//    }
 
-    /**
-     * rester destructor
-     */
-    public function __destruct()
-    {
-        if($this->redis) $this->redis->close();
-    }
+//    /**
+//     * rester destructor
+//     */
+//    public function __destruct()
+//    {
+//        if($this->redis) $this->redis->close();
+//    }
 
     /**
      * @return bool|string
      */
     protected function get_cache_header()
     {
-        return $this->redis->get($this->cache_header_key);
+        return rester_redis::get_cache($this->cache_header_key);
     }
 
     /**
@@ -156,23 +157,15 @@ class rester_cdn
      */
     protected function get_cache()
     {
-        return $this->redis->get($this->cache_key);
+        return rester_redis::get_cache($this->cache_key);
     }
 
     /**
-     * @return bool|string
-     */
-    protected function get_cache_allows()
-    {
-        return $this->redis->get($this->cache_allows_key);
-    }
-
-    /**
-     * @param array $v
+     * @return bool/string
      */
     protected function get_cache_size()
     {
-        return $this->redis->get($this->cache_size_key);
+        return rester_redis::get_cache($this->cache_size_key);
     }
 
     /**
@@ -180,7 +173,7 @@ class rester_cdn
      */
     protected function set_cache_header($v)
     {
-        $this->redis->set($this->cache_header_key,$v,$this->cache_timeout);
+        rester_redis::set_cache($this->cache_header_key, $v, $this->cache_timeout);
     }
 
     /**
@@ -188,7 +181,7 @@ class rester_cdn
      */
     protected function set_cache_size($v)
     {
-        $this->redis->set($this->cache_key,$v,$this->cache_timeout);
+        rester_redis::set_cache($this->cache_size_key, $v, $this->cache_timeout);
     }
 
     /**
@@ -196,7 +189,7 @@ class rester_cdn
      */
     protected function set_cache($v)
     {
-        $this->redis->set($this->cache_key,$v,$this->cache_timeout);
+        rester_redis::set_cache($this->cache_key, $v, $this->cache_timeout);
     }
 
     /**
@@ -240,15 +233,25 @@ class rester_cdn
             }
         }
 
-        if ($this->cache_connected)
+//        if ($this->cache_connected)
+//        {
+//            rester_traffic::set_cache($this->redis);
+//            rester_traffic::set_cache_traffic([
+//                'ip' => cfg::access_ip(),
+//                'referer' => $_SERVER['HTTP_REFERER'],
+//                'datetime' => date("Y-m-d H:i:s"),
+//                'path' => $__path,
+//                'size' => $response_size]);
+//        }
+        if(rester_redis::cache_conn())
         {
-            rester_traffic::set_cache($this->redis);
             rester_traffic::set_cache_traffic([
                 'ip' => cfg::access_ip(),
                 'referer' => $_SERVER['HTTP_REFERER'],
                 'datetime' => date("Y-m-d H:i:s"),
                 'path' => $__path,
-                'size' => $response_size]);
+                'size' => $response_size
+            ]);
         }
 
         rester_response_image::mime($response_mime);
