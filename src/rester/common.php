@@ -7,6 +7,7 @@ define('__RESTER__', TRUE);
  */
 
 require_once dirname(__FILE__).'/cfg.class.php';
+require_once dirname(__FILE__).'/rester_redis.class.php';
 require_once dirname(__FILE__).'/rester_cdn.class.php';
 require_once dirname(__FILE__).'/rester_response.class.php';
 require_once dirname(__FILE__).'/rester_response_image.class.php';
@@ -19,6 +20,7 @@ ini_set('memory_limit','-1');
 
 try
 {
+    $redis = new rester_redis();
     cfg::init();
 }
 catch (Exception $e)

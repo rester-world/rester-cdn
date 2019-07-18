@@ -51,8 +51,10 @@ class rester_traffic
      */
     public static function set_cache_traffic($v)
     {
-        self::connect_cache();
-        self::$redis->set(self::$cache_traffic_key, json_encode($v), 60 * 60);
+//        self::connect_cache();
+        self::$cache_traffic_key = 'rester-cdn-traffic-' . self::gen_key();
+//        self::$redis->set(self::$cache_traffic_key, json_encode($v), 60 * 60);
+        rester_redis::set_cache(self::$cache_traffic_key, json_encode($v), 60*60);
     }
 
     /**
@@ -62,28 +64,30 @@ class rester_traffic
      */
     public static function get_cache_traffic($delete = false)
     {
-        self::connect_cache();
+//        self::connect_cache();
 
         $retArray = Array();
-        foreach (self::$redis->getKeys('rester-cdn-traffic-*') as $key) {
-            $ret = self::$redis->get($key);
+//        foreach (self::$redis->getKeys('rester-cdn-traffic-*') as $key) {
+        foreach (rester_redis::get_keys('rester-cdn-traffic-*') as $key) {
+//            $ret = self::$redis->get($key);
+            $ret = rester_redis::get_cache($key);
             if (json_decode($ret, true)) {
                 $ret = json_decode($ret, true);
             }
             array_push($retArray, $ret);
 
-            if ($delete)
-                self::$redis->del($key);
+//            if ($delete)
+//                self::$redis->del($key);
         }
         return $retArray;
     }
 
-    /**
-     * @param $cache
-     */
-    public static function set_cache($cache)
-    {
-        self::$redis = $cache;
-    }
+//    /**
+//     * @param $cache
+//     */
+//    public static function set_cache($cache)
+//    {
+//        self::$redis = $cache;
+//    }
 
 }

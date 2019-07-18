@@ -1,23 +1,19 @@
 <?php
-//------------------------------------------------------
-/// cfg const value
-/// use cfg class
-//------------------------------------------------------
-const QUERY_MODULE          = 'm';
-const QUERY_CACHE           = 'cache';
-const QUERY_CACHE_TIMEOUT   = 'timeout';
 
 /**
  * class file
  */
 class rester_allows
 {
-    protected $redis = null;
+    const cache_key = 'rester-allows';
 
-    protected $cache = false;
-    protected $cache_connected = false;
-    protected $cache_timeout = 600;
-    protected $cache_key = null;
+    /**
+     * @param array $v
+     */
+    protected function set_cache_allows($v)
+    {
+        rester_redis::set_cache(self::cache_key, json_encode($v, JSON_UNESCAPED_UNICODE), 60*60);
+    }
 
     /**
      * rester_cdn constructor.
@@ -36,30 +32,6 @@ class rester_allows
         {
             throw new Exception(cfg::error_images_method);
         }
-
-        //----------------------------------------------
-        /// Extract request parameters
-        //----------------------------------------------
-        // Cache
-        if($_GET[QUERY_CACHE])
-        {
-            $this->cache = true;
-            if($_GET[QUERY_CACHE_TIMEOUT]) $this->cache_timeout = $_GET[QUERY_CACHE_TIMEOUT];
-            else if(cfg::cache_timeout()) $this->cache_timeout = cfg::cache_timeout();
-        }
-
-        //------------------------------------------------------------------------------
-        /// redis host & port
-        //------------------------------------------------------------------------------
-        if((cfg::cache_host() && cfg::cache_port()))
-        {
-            $this->cache_connected = true;
-
-            $this->redis = new Redis();
-            $this->redis->connect(cfg::cache_host(), cfg::cache_port());
-            if(cfg::cache_auth()) $this->redis->auth(cfg::cache_auth());
-            $this->cache_key = 'rester-allows';
-        }
     }
 
     /**
@@ -67,15 +39,6 @@ class rester_allows
      */
     public function __destruct()
     {
-        if($this->redis) $this->redis->close();
-    }
-
-    /**
-     * @param array $v
-     */
-    protected function set_cache_allows($v)
-    {
-        $this->redis->set($this->cache_key, json_encode($v, JSON_UNESCAPED_UNICODE), 60*60);
     }
 
     /**
@@ -88,7 +51,7 @@ class rester_allows
         //--------------------------------------------------------------------------------
         /// include file
         //--------------------------------------------------------------------------------
-        if ($this->cache_connected)
+        if (rester_redis::cache_conn())
         {
             $this->set_cache_allows([
                 'allows' => $_POST,
