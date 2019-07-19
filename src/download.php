@@ -33,6 +33,17 @@ try
     {
         header($v);
     }
+
+    if(rester_redis::cache_conn())
+    {
+        rester_traffic::set_cache_traffic([
+            'ip' => cfg::access_ip(),
+            'referer' => $_SERVER['HTTP_REFERER'],
+            'datetime' => date("Y-m-d H:i:s"),
+            'size' => $file_size
+        ]);
+    }
+
     echo file_get_contents($file_path);
 }
 catch (Exception $e)
