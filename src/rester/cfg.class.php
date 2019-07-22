@@ -200,6 +200,24 @@ class cfg
     }
 
     /**
+     * @return array
+     */
+    protected static function get_allows()
+    {
+        //redis allows data
+        $list = json_decode(rester_redis::get_cache('rester-allows'), true);
+
+        $allows = [];
+        foreach($list['allows'] as $row)
+        {
+            $allows['site'][] = str_replace('www', '*', explode('//', $row['site_uri'])[1]);
+            $allows['upload'][] = $row['site_ip'];
+        }
+
+        return $allows;
+    }
+
+    /**
      * Initialize default config
      *
      * @throws Exception
@@ -235,26 +253,49 @@ class cfg
         // Extract access control
         if($cfg[self::access_control])
         {
+            //redis allows data
+            $allows = self::get_allows();
+
             // sites
             $origin = $cfg[self::access_control][self::access_control_allows_sites];
+
             if(!is_array($origin) && trim($origin)!='*')
+                $origin = explode(',', $origin);
+
+            if(is_array($origin))
             {
-                foreach(explode(',',$origin) as $ori)
+                $allows_data = [];
+                foreach($origin as $ori)
                 {
-                    if($ext = trim($ori))
-                        $cfg[self::access_control][self::access_control_allows_sites][] = $ori;
+                    if($ori = trim($ori))
+                    {
+                        if($ori == 'dynamic') $allows_data = array_merge($allows_data, $allows['site']);
+                        else $allows_data[] = $ori;
+                    }
                 }
+
+                $cfg[self::access_control][self::access_control_allows_sites] = $allows_data;
             }
 
             // upload
             $origin = $cfg[self::access_control][self::access_control_allows_upload];
+
             if(!is_array($origin) && trim($origin)!='*')
+                $origin = explode(',', $origin);
+
+            if(is_array($origin))
             {
-                foreach(explode(',',$origin) as $ori)
+                $allows_data = [];
+                foreach($origin as $ori)
                 {
-                    if($ext = trim($ori))
-                        $cfg[self::access_control][self::access_control_allows_upload][] = $ori;
+                    if($ori = trim($ori))
+                    {
+                        if($ori == 'dynamic') $allows_data = array_merge($allows_data, $allows['upload']);
+                        else $allows_data[] = $ori;
+                    }
                 }
+
+                $cfg[self::access_control][self::access_control_allows_upload] = $allows_data;
             }
         }
 

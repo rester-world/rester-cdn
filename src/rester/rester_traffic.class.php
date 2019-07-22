@@ -78,6 +78,8 @@ class rester_traffic
 
 //            if ($delete)
 //                self::$redis->del($key);
+            if ($delete)
+                rester_redis::del($key);
         }
         return $retArray;
     }

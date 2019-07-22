@@ -58,12 +58,32 @@ class rester_redis
     /**
      * @param string|object $v
      */
-    public static function set_cache($k, $v, $timeout) { self::$redis->set($k, $v, $timeout); }
+    public static function set_cache($k, $v, $timeout)
+    {
+        if (!self::cache_conn())
+        {
+            self::$redis = new Redis();
+            self::$data[self::cache][self::cache_conn] = self::connection();
+            if(self::cache_auth()) self::$redis->auth(self::cache_auth());
+        }
+
+        self::$redis->set($k, $v, $timeout);
+    }
 
     /**
      * @return bool|string
      */
-    public static function get_cache($k) { return self::$redis->get($k); }
+    public static function get_cache($k)
+    {
+        if (!self::cache_conn())
+        {
+            self::$redis = new Redis();
+            self::$data[self::cache][self::cache_conn] = self::connection();
+            if(self::cache_auth()) self::$redis->auth(self::cache_auth());
+        }
+
+        return self::$redis->get($k);
+    }
 
     /**
      * @return array
@@ -71,9 +91,14 @@ class rester_redis
     public static function get_keys($pattern) { return self::$redis->keys($pattern); }
 
     /**
+     * @param string|object $key
+     */
+    public static function del($key) { self::$redis->del($key); }
+
+    /**
      * @return string|bool
      */
-    protected function connection() { return self::$redis->connect(self::cache_host(), self::cache_port()); }
+    protected static function connection() { return self::$redis->connect(self::cache_host(), self::cache_port()); }
 
     /**
      * rester_cdn constructor.
