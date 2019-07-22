@@ -249,7 +249,6 @@ class rester_cdn
                 'ip' => cfg::access_ip(),
                 'referer' => $_SERVER['HTTP_REFERER'],
                 'datetime' => date("Y-m-d H:i:s"),
-                'path' => $__path,
                 'size' => $response_size
             ]);
         }
