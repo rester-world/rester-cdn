@@ -208,10 +208,14 @@ class cfg
         $list = json_decode(rester_redis::get_cache('rester-allows'), true);
 
         $allows = [];
-        foreach($list['allows'] as $row)
+
+        if($list)
         {
-            $allows['site'][] = str_replace('www', '*', explode('//', $row['site_uri'])[1]);
-            $allows['upload'][] = $row['site_ip'];
+            foreach($list['allows'] as $row)
+            {
+                $allows['site'][] = str_replace('www', '*', explode('//', $row['site_uri'])[1]);
+                $allows['upload'][] = $row['site_ip'];
+            }
         }
 
         return $allows;
