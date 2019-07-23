@@ -273,8 +273,7 @@ class cfg
                 {
                     if($ori = trim($ori))
                     {
-                        if($ori == 'dynamic')
-                            if(!empty($allows)) $allows_data = array_merge($allows_data, $allows['site']);
+                        if($ori == 'dynamic' && !empty($allows)) $allows_data = array_merge($allows_data, $allows['site']);
                         else $allows_data[] = $ori;
                     }
                 }
@@ -295,8 +294,7 @@ class cfg
                 {
                     if($ori = trim($ori))
                     {
-                        if($ori == 'dynamic')
-                            if(!empty($allows)) $allows_data = array_merge($allows_data, $allows['upload']);
+                        if($ori == 'dynamic'&& !empty($allows)) $allows_data = array_merge($allows_data, $allows['upload']);
                         else $allows_data[] = $ori;
                     }
                 }
