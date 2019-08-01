@@ -213,7 +213,11 @@ class cfg
         {
             foreach($list['allows'] as $row)
             {
-                $allows['site'][] = str_replace('www', '*', explode('//', $row['site_uri'])[1]);
+                $site = explode(',', $row['site_uri']);
+                foreach($site as $uri)
+                {
+                    $allows['site'][] = str_replace('www', '*', explode('//', trim($uri))[1]);
+                }
                 $allows['upload'][] = $row['site_ip'];
             }
         }
