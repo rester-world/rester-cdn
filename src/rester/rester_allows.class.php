@@ -53,6 +53,7 @@ class rester_allows
         //--------------------------------------------------------------------------------
         if (rester_redis::cache_conn())
         {
+            unset($_POST['token']);
             $this->set_cache_allows([
                 'allows' => $_POST,
                 'datetime' => date("Y-m-d H:i:s")
