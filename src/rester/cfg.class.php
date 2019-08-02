@@ -230,7 +230,6 @@ class cfg
                         $allows['site'][] = $host;
                     }
                 }
-                var_dump($allows);
                 $allows['upload'][] = $row['site_ip'];
             }
         }
