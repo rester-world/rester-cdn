@@ -56,7 +56,7 @@ class rester_allows
             $allows = [];
             foreach($_POST as $key=>$row)
             {
-                if($key != 'token') $allows[] = $row;
+                if($key !== 'token') $allows[] = $row;
             }
             $this->set_cache_allows([
                 'allows' => $allows,
