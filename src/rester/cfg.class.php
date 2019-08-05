@@ -214,13 +214,13 @@ class cfg
             foreach($list['allows'] as $row)
             {
                 $site = explode(',', $row['site_uri']);
+
                 foreach($site as $uri)
                 {
-                    $host = parse_url($uri, PHP_URL_HOST);
+                    $host = parse_url(trim($uri), PHP_URL_HOST);
+
                     if(strpos($host, 'www') !== false)
                     {
-//                        $allows['site'][] = str_replace('www', '*', explode('//', trim($uri))[1]);
-//                        $allows['site'][] = str_replace('www.', '', explode('//', trim($uri))[1]);
                         $host = str_replace('www.', '', $host);
                         $allows['site'][] = '*.'.$host;
                         $allows['site'][] = $host;
@@ -230,6 +230,7 @@ class cfg
                         $allows['site'][] = $host;
                     }
                 }
+                var_dump($allows);
                 $allows['upload'][] = $row['site_ip'];
             }
         }
